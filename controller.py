@@ -6,6 +6,13 @@ class Controller:
     def open_folder(self):
         folder = self.model.open_folder()
         self.view.set_tree(folder)
+
+    def open_file_from_folder(self, e):
+        node, i = self.view.get_selected_file()
+        content = self.model.open_file(node, i)
+        if content:
+            self.view.set_text(content)
+            self.highlight_text()
     
     def open(self):
         content = self.model.open_file()
@@ -22,8 +29,6 @@ class Controller:
         self.view.highlight(tokens)
 
     def handle_keypress(self, k):
-        print(k)
-        print(k.state)
         if k.state == "Mod2":
             self.highlight_text()
 

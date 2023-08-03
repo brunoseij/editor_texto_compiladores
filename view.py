@@ -21,34 +21,40 @@ class View(tk.Frame):
         self.btn_open_folder = tk.Button(master=self.frm_menuBar, text="open folder", command=self.open_folder_btn_clicked)
         self.btn_open_folder.pack(side="left")
 
-        self.label = tk.Label(master=self, text="editor de texto", background="yellow")
-        self.label.pack(fill="x")
-
         self.frm_main = tk.Frame(master=self, background="green")
         self.frm_main.pack(fill="both", expand=True)
     
         self.tree = ttk.Treeview(master=self.frm_main)
         self.tree.heading('#0', text='Project tree', anchor='w')
+        self.tree.column('#0', width=450, stretch = True)
         self.tree.pack(fill="y", expand=False, side="left")
 
         self.txt = tk.Text(master=self.frm_main, background = background_color, fg="white")
+        self.txt.mark_set("sentinel", "insert")
         self.txt.pack(fill="both", expand=True)
 
         #self.tree.configure(yscroll=ysb.set, xscroll=xsb.set)
 
         self.configure_tags()
         self.tree.bind('<<TreeviewOpen>>', self.open_node)
-        #self.tree.bind('<<TreeviewSelect>>', self.selecionou)
-        s = ttk.Style()
-        s.configure('Treeview', rowheight=40, width=1500)
+        treeStyle = ttk.Style()
+        treeStyle.configure('Treeview', rowheight=40)
+        treeHeadingStyle = ttk.Style()
+        #treeHeadingStyle.theme_use("clam")
+        treeHeadingStyle.configure("Treeview.Heading", background="white", foreground="black")
 
     def set_controller(self, controller):
         self.controller = controller
     
-    def selecionou(self, e):
-        #print(self.nodes)
-        #print(self.tree.focus())
-        print(self.tree)
+    def get_selected_file(self):
+        item = self.tree.selection()[0]
+        parent_iid = self.tree.parent(item)
+        node = []
+        while parent_iid != '':
+            node.insert(0, self.tree.item(parent_iid)['text'])
+            parent_iid = self.tree.parent(parent_iid)
+        i = self.tree.item(item, "text")
+        return node, i
 
     def set_text(self, content):
         self.txt.delete("1.0", "end")
