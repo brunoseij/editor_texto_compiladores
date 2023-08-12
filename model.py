@@ -1,35 +1,45 @@
+import sys
 from tkinter import filedialog as fd
 from antlr4 import *
+sys.path.append("./compiler")
 from GrammarExpressionLexer import GrammarExpressionLexer
 import os
 
 class Model:
     def __init__(self):
-        self.__file = None
+        self.file = None
+        self.open_files = {}
 
     def set_file(self, arq):
-        if (self.__file):
-            self.__file.close()
-        self.__file = arq
+        self.file = arq
 
-    def open_file(self, node = None, i = None):
-        if node != None:
-            path = os.path.join(*node, i)
-        else:
-            path = fd.askopenfilename()
+    def change_tab(self, path):
+        self.set_file(self.open_files[path])
 
-        if os.path.isfile(path): 
-            arq = open(path, "r")
-            self.set_file(arq)
-            return self.__file.read()
+    def open(self, path):
+        new_file = File(path)
+        self.open_files[path] = new_file
+        self.file = new_file
+    
+    def new(self, path):
+        open(path, "w").close()
+        new_file = File(path)
+        self.open_files[path] = new_file
+        self.file = new_file
 
-    def save_file(self, content):
-        filename = fd.asksaveasfilename()
-        arq = open(filename, "w")
-        arq.write(content)
-        arq.close()
-        arq = open(filename, "r")
-        self.set_file(arq)
+    def save(self):
+        self.file.save_file()
+
+    def set_text(self, content):
+        self.file.set_text(content)
+
+    def get_text(self):
+        return self.file.get_text()
+
+    def is_open(self, path):
+        if path in self.open_files:
+            return True
+        return False
 
     def analyze_text(self, content):
         codeStream = InputStream(content)
@@ -40,3 +50,21 @@ class Model:
         for t in tokens:
             tokensIndex.append({"line": t.line, "start": t.column, "end": t.column+(len(t.text)), "id": t.type})
         return tokensIndex
+
+class File:
+    def __init__(self, path):
+        self.path = path
+        self.file = open(self.path, "r")
+        self.txt = self.file.read()
+
+    def get_text(self):
+        return self.txt
+
+    def set_text(self, newText):
+        self.txt = newText
+    
+    def save_file(self):
+        self.file = open(self.path, "w")
+        self.file.write(self.txt)
+        self.file.close()
+        self.file = open(self.path, "r")

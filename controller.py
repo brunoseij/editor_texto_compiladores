@@ -3,32 +3,38 @@ class Controller:
         self.model = model
         self.view = view
 
-    def open_folder(self):
-        folder = self.model.open_folder()
-        self.view.set_tree(folder)
-
-    def open_file_from_folder(self, e):
-        node, i = self.view.get_selected_file()
-        content = self.model.open_file(node, i)
-        if content:
-            self.view.set_text(content)
-            self.highlight_text()
-    
-    def open(self):
-        content = self.model.open_file()
-        self.view.set_text(content)
+    def new(self, path):
+        self.model.new(path)
+        self.view.add_tab(path, self.model.get_text())
         self.highlight_text()
+
+    def open(self, path):
+        if not self.model.is_open(path):
+            self.model.open(path)
+            self.view.add_tab(path, self.model.get_text())
+            self.highlight_text()
 
     def save(self):
-        content = self.view.get_text()
-        self.model.save_file(content)
-        self.highlight_text()
+        if self.view.tab:
+            self.model.set_text(self.view.get_text())
+            self.model.save()
     
     def highlight_text(self):
-        tokens = self.model.analyze_text(self.view.get_text())
-        self.view.highlight(tokens)
+        if self.view.tab:
+            tokens = self.model.analyze_text(self.view.get_text())
+            self.view.highlight(tokens)
+
+    def is_saved(self):
+        if self.model.get_text() == self.view.get_text():
+            return True
+        return False
+
+    def change_tab(self, path):
+        path = self.view.get_selected_tab_filepath()
+        self.model.change_tab(path)
 
     def handle_keypress(self, k):
-        if k.state == "Mod2":
-            self.highlight_text()
+        self.highlight_text()
+        self.is_saved()
+            
 

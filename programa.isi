@@ -1,0 +1,41 @@
+programa
+    integer a,b,c,d,Ant,ant.
+    string e, f, g, r.
+    real x, y,z,i, j, k.
+    escreva("Programa Teste").
+    escreva ("Digite A").
+    leia (a).
+    escreva ("Digite B").
+    leia (b).
+    ant := 3.
+    e := "".
+    b := 1.
+    d := b.
+    a := 1 + 2 * 3 / 4 + (2 - 3 * 5).
+    se (a>b && (a < b || a > b) || b > a) entao {
+        b := 2.
+        b := 2.
+    }
+    se (a-b+ant*b/d<b+a-b*a/a) entao {
+        c := a + b.
+    } senao {
+        c := a - b + 3 - 0.
+    }
+    escreva ("C e igual a ").
+    escreva (c).
+    escreva ("D e igual a ").
+    escreva (d).
+    j := 3,0.
+    k := 4,0.
+    x := 2,5.
+    x := x + k.
+    para (i := j - k. i >= j. i := i + 1,0) {
+        escreva ("Entrei no for").
+        enquanto ( k < i ) {
+            a := 6.
+            a := a + 1
+		a:= b + 3
+        }
+    }
+fimprog.
+
