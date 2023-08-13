@@ -22,7 +22,6 @@ class App(tk.Tk):
         view.pack(fill="both", expand=True)
 
         controller = Controller(model, view)
-        self.bind('<KeyPress>', controller.handle_keypress)
         self.bind('<<NotebookTabChanged>>',view.update_open_tab)
 
         view.set_controller(controller)

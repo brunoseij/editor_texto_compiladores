@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog as fd
+import re
 import os
 
 background_color = "#202124"
@@ -24,7 +25,17 @@ class View(tk.Frame):
         self.btn_save.pack(side="left")
 
         self.main = ttk.Notebook(master=self)
-        self.main.pack(fill="both", expand=True) 
+        self.main.pack(fill="both", expand=True)
+
+        self.frm_footer = tk.Frame(master=self)
+        self.frm_footer.pack(fill="x", expand=False)
+
+        self.frm_search = tk.Frame(self.frm_footer)
+        self.frm_search.pack(side="right", fill="y")
+
+        self.searchbox = tk.Entry(master=self.frm_search)
+        self.searchbox.pack(side="right")
+        self.searchbox.bind("<KeyRelease>", self.search)
 
     def set_controller(self, controller):
         self.controller = controller
@@ -44,7 +55,8 @@ class View(tk.Frame):
         self.tab.insert("1.0", content)
 
     def get_text(self):
-        return self.tab.get("1.0", "end")
+        if self.tab:
+            return self.tab.get("1.0", "end")
 
     def new(self):
         path = fd.asksaveasfilename()
@@ -64,8 +76,10 @@ class View(tk.Frame):
             self.tab.tag_remove(tag, "1.0", "end")
         for token in tokens:
             self.tab.tag_add(token["id"], f"{token['line']}.{token['start']}",f"{token['line']}.{token['end']}")
+        self.search()
 
     def configure_tags(self):
+        self.tab.tag_config("match", background = "yellow")
         for i in range(34):
             if i >= 1 and i <= 3:
                 self.tab.tag_config(f"{i}", foreground = "green")
@@ -90,8 +104,37 @@ class View(tk.Frame):
 
     def add_tab(self, path, content):
         text = tk.Text()
+        text.bind('<KeyRelease>', self.controller.handle_keypress)
+        text.bind('<Control-f>', self.searchbox_focus)
         self.text_list.append((text, path))
         text = self.text_list[len(self.text_list) - 1][0]
+        
         self.main.add(text, text = path.split('/')[-1])
         text.insert('end', content)
         self.main.select(len(self.text_list) - 1)
+            
+    def searchbox_focus(self, e):
+        self.searchbox.focus()
+
+    def search(self, e=None):
+        try:
+            lines = self.get_text().split("\n")
+        except:
+            return
+
+        searchfor = specialCharsTreatment(self.searchbox.get())
+
+        self.tab.tag_remove("match", "1.0", "end")
+        for i, line in enumerate(lines):
+            for match in re.finditer(f'{searchfor}', line):
+                self.tab.tag_add("match", f"{i+1}.{match.start()}",f"{i+1}.{match.end()}")
+
+def specialCharsTreatment(s):
+    specialChars = ['*', '[', ']', '(', ')', '$', '.']
+    result = ''
+    for c in s:
+        if c in specialChars:
+            result += f'[{c}]'
+        else:
+            result += c
+    return result
