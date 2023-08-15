@@ -1,7 +1,5 @@
-import sys
 from tkinter import filedialog as fd
 from antlr4 import *
-sys.path.append("./compiler")
 from GrammarExpressionLexer import GrammarExpressionLexer
 import os
 

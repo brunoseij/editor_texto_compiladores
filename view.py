@@ -1,10 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog as fd
+from tkinter import scrolledtext
 import re
 import os
-
-background_color = "#202124"
 
 class View(tk.Frame):
     def __init__(self, parent):
@@ -24,28 +23,26 @@ class View(tk.Frame):
         self.btn_save = tk.Button(master=self.frm_menuBar, text="save", command=self.save)
         self.btn_save.pack(side="left")
 
-        self.main = ttk.Notebook(master=self)
-        self.main.pack(fill="both", expand=True)
-
-        self.frm_footer = tk.Frame(master=self)
-        self.frm_footer.pack(fill="x", expand=False)
-
-        self.frm_search = tk.Frame(self.frm_footer)
-        self.frm_search.pack(side="right", fill="y")
-
-        self.searchbox = tk.Entry(master=self.frm_search)
+        self.searchbox = tk.Entry(master=self.frm_menuBar)
         self.searchbox.pack(side="right")
         self.searchbox.bind("<KeyRelease>", self.search)
+
+        self.main = ttk.Notebook(master=self)
+        self.main.pack(fill="both", expand=True)   
+        self.main.bind('<<NotebookTabChanged>>',self.update_open_tab)
 
     def set_controller(self, controller):
         self.controller = controller
 
     def update_open_tab(self, e):
-        self.tab = self.text_list[self.main.index(self.main.select())][0]
-        self.path = self.text_list[self.main.index(self.main.select())][1]
-        self.controller.change_tab(self.path)
-        self.configure_tags()
-        self.controller.highlight_text()
+        try:
+            self.tab = self.text_list[self.main.index(self.main.select())][0]
+            self.path = self.text_list[self.main.index(self.main.select())][1]
+            self.controller.change_tab(self.path)
+            self.configure_tags()
+            self.controller.highlight_text()
+        except:
+            self.text_list = []
 
     def get_selected_tab_filepath(self):
         return self.path
@@ -80,30 +77,32 @@ class View(tk.Frame):
 
     def configure_tags(self):
         self.tab.tag_config("match", background = "yellow")
-        for i in range(34):
-            if i >= 1 and i <= 3:
-                self.tab.tag_config(f"{i}", foreground = "green")
-            elif i <= 5:
-                self.tab.tag_config(f"{i}", foreground = "yellow")
-            elif i<=8:
-                self.tab.tag_config(f"{i}", foreground = "blue")
-            elif i <= 13:
-                self.tab.tag_config(f"{i}", foreground = "pale turquoise")
-            elif i == 14 or i>=27 and i <= 30:
-                self.tab.tag_config(f"{i}", foreground = "black")
-            elif i == 15:
-                self.tab.tag_config(f"{i}", foreground = "orange")
-            elif i <= 18:
-                self.tab.tag_config(f"{i}", foreground = "pale green")
-            elif i == 19 or i == 24:
-                self.tab.tag_config(f"{i}", foreground = "black")
-            elif i <= 26:
-                self.tab.tag_config(f"{i}", foreground = "yellow")
+        for i in range(35):
+            if (i >= 1 and i <= 3) or i == 6:
+                self.tab.tag_config(f"{i}", foreground = "#161884")
+            elif i == 4 or i == 5: #inicio e fim
+                self.tab.tag_config(f"{i}", foreground = "#E95420")
+            elif i == 7 or i == 8:#read e write
+                self.tab.tag_config(f"{i}", foreground = "#A79571")
+            elif i >= 9 and i <= 13:#if else, while for
+                self.tab.tag_config(f"{i}", foreground = "#CD6EEB")
+            elif i == 14 or i == 15 or i == 25: #operadores
+                self.tab.tag_config(f"{i}", foreground = "#000000")
+            elif i == 16 or i == 32: #string
+                self.tab.tag_config(f"{i}", foreground = "#AA262C")
+            elif i >= 17 and i <= 19: #number
+                self.tab.tag_config(f"{i}", foreground = "#288C60")
+            elif i >= 20 and i <= 22: #variaveis . ,
+                self.tab.tag_config(f"{i}", foreground = "#000000")
+            elif i == 23 or i == 24 or i == 26 or i == 27: #parenteses e chaves
+                self.tab.tag_config(f"{i}", foreground = "#6882FD")
+            elif i >= 28 and i <= 31: # operadores matematicos
+                self.tab.tag_config(f"{i}", foreground = "#000000")
             else:
                 self.tab.tag_config(f"{i}", underline=True, underlinefg='red')
 
     def add_tab(self, path, content):
-        text = tk.Text()
+        text = scrolledtext.ScrolledText()
         text.bind('<KeyRelease>', self.controller.handle_keypress)
         text.bind('<Control-f>', self.searchbox_focus)
         self.text_list.append((text, path))

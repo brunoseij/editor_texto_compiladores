@@ -1,5 +1,5 @@
 import sys
-sys.path.append("./compiler")
+sys.path.append("./lexer")
 from model import Model
 from view import View
 from controller import Controller
@@ -9,12 +9,11 @@ from tkinter import ttk
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.tk.call('source', './yaru/yaru.tcl')
-        # Set the theme with the theme_use method
-        ttk.Style().theme_use('yaru')
 
-        self.title('IDE')
-        self.geometry("800x450")
+        self.tk.call('source', './theme/breeze.tcl')
+        ttk.Style().theme_use('breeze')
+
+        self.geometry("1200x750")
 
         model = Model()
 
@@ -22,7 +21,6 @@ class App(tk.Tk):
         view.pack(fill="both", expand=True)
 
         controller = Controller(model, view)
-        self.bind('<<NotebookTabChanged>>',view.update_open_tab)
 
         view.set_controller(controller)
 
